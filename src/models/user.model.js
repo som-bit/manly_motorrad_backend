@@ -2,7 +2,7 @@ import mongoose, { Schema } from "mongoose";
 import jwt from "jsonwebtoken"
 import bcrypt from "bcrypt"
 
-const userSchema = new mongoose.Schema({
+const userSchema = new Schema({
     username: {
         type: String,
         required: true,
@@ -56,15 +56,10 @@ const userSchema = new mongoose.Schema({
     },
     refreashtoken: {
         type: String,
-        // required: true,
-        // unique: true,
-        // lowercase: true,
-        // trim: true,
-        // index: true,
     },
     orders: [
         {
-            type: mongoose.Schema.Types.ObjectId,
+            type: Schema.Types.ObjectId,
             ref: 'Order'
         }
     ]

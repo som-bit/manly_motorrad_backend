@@ -1,6 +1,6 @@
-import mongoose from 'mongoose'; // Using import syntax
+import mongoose, { Schema } from "mongoose";
 
-const categorySchema = new mongoose.Schema({
+const categorySchema = new Schema({
     name: {
         type: String,
         required: true,
@@ -12,7 +12,7 @@ const categorySchema = new mongoose.Schema({
         trim: true
     },
     parentCategory: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: Schema.Types.ObjectId,
         ref: 'Categories',
         default: null
     },

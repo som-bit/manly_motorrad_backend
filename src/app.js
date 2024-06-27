@@ -27,4 +27,13 @@ app.use(express.static("public"))
 
 //to perform basic crud with cookies eg saving secure cookies in user browser
 app.use(cookieParser())
+
+
+import productRoutes from "../src/routes/product_routes/product.routes.js"
+
+// Routes
+app.use('/api/products', productRoutes);
+
+
+
 export { app }
