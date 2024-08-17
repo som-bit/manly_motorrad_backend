@@ -1,10 +1,22 @@
-import express from 'express';
-// import { createProduct, } from '../../controllers/product_controllers/product.controllers.js'; 
+import { Router } from "express";
+import { createProduct } from '../../controllers/product_controllers/product.controllers.js'; 
+import { upload } from "../../middlewares/multer.middleware.js"
 
-const router = express.Router();
+
+const router = Router()
 
 // Create product route (POST request)
-// router.post('/create', createProduct);
+
+
+router.post('/create', upload.fields([
+    {
+        name: "images",
+        maxCount: 1
+    },
+   
+]),   createProduct);
+
+
 
 // // Delete product route (DELETE request)
 // router.delete('/:id', deleteProduct);
