@@ -1,9 +1,12 @@
 import { Router } from "express";
-import { createProduct } from '../../controllers/product_controllers/product.controllers.js'; 
+import { getAllProducts,createProduct, deleteProduct } from '../../controllers/product_controllers/product.controllers.js'; 
 import { upload } from "../../middlewares/multer.middleware.js"
 
 
 const router = Router()
+
+// get product route (GET request)
+router.get('/all', getAllProducts);
 
 // Create product route (POST request)
 
@@ -11,15 +14,15 @@ const router = Router()
 router.post('/create', upload.fields([
     {
         name: "images",
-        maxCount: 1
+        maxCount: 5
     },
    
 ]),   createProduct);
 
 
 
-// // Delete product route (DELETE request)
-// router.delete('/:id', deleteProduct);
+// Delete product route (DELETE request)
+router.delete('/delete/:id', deleteProduct);
 
 // // Update product route (PUT request)
 // router.put('/:id', updateProduct);
