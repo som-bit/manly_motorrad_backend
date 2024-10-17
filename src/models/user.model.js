@@ -65,17 +65,15 @@ const userSchema = new Schema({
     ]
 }, { timestamps: true });
 
-// a hook from mongoose to do something before saving user data
+// Pre-save hook for hashing the password
 userSchema.pre("save", async function (next) {
-    // this if statement checks that whether the password is
-    // changed or not and salting or bycryption will only be done when password
-    // is modified
+    // If the password hasn't been modified, move to the next middleware
     if (!this.isModified("password")) return next();
 
-    this.password = bcrypt.hash(this.password, 10)
-    next()
-
-})
+    // Hash the password with salt rounds
+    this.password = await bcrypt.hash(this.password, 10);  // Await bcrypt.hash
+    next();  // Move to the next middleware or save the user
+});
 
 
 // designing custom methodes to validate a password via bcrypt library 
@@ -94,6 +92,8 @@ userSchema.methods.generateAccesstoken = function () {
             email: this.email,
             fullname: this.fullname,
             username: this.username,
+            isAdmin: this.isAdmin, // Include isAdmin in the token payload
+
         },
         // expiry always goes in an object
         process.env.ACCESS_TOKEN_SECRET,
