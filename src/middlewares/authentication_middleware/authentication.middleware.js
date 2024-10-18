@@ -4,9 +4,10 @@ import { ApiError } from "../../utils/api_error.js";
 // Authentication middleware
 const authenticate = async (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1]; // Bearer token format
+    console.log(token)
 
     if (!token) {
-        throw new ApiError(401, "Access token is missing");
+        return next(new ApiError(401, "Access token is missing"));
     }
 
     try {

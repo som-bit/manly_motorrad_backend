@@ -42,5 +42,29 @@ app.use('/api/categories', categoriesRoutes);
 
 
 
+import { ApiError } from "../src/utils/api_error.js"
+
+// global catch for errors
+app.use((err, req, res, next) => {
+    // Log the error to the console if needed (for debugging)
+    console.error(err.stack);
+
+    if (err instanceof ApiError) {
+        // Customize the error response for ApiError
+        return res.status(err.statusCode).json({
+            success: false,
+            message: err.message,
+            errors: err.errors || [],
+        });
+    }
+
+    // Default error handler for other errors
+    res.status(500).json({
+        success: false,
+        message: "Internal server error",
+        errors: [],
+    });
+});
+
 
 export { app }
