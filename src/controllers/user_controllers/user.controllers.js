@@ -4,13 +4,13 @@ import { ApiResponse } from "../../utils/api_response.js";
 import { asyncHandler } from "../../utils/async_handler.js";
 
 // Create a new user
-const createUser = asyncHandler(async (req, res) => {
+const createUser = asyncHandler(async (req, res, next) => {
     const { username, fullname, email, password, phone, address } = req.body;
 
     // Check if the username or email already exists
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) {
-        throw new ApiError(400, "Username or email already exists");
+        return next(new ApiError(400, "Username or email already exists"));
     }
 
     // Create new user
@@ -26,7 +26,7 @@ const createUser = asyncHandler(async (req, res) => {
     res.status(201).json(new ApiResponse(true, "User created successfully", newUser));
 });
 
-const login = asyncHandler(async (req, res) => {
+const login = asyncHandler(async (req, res, next) => {
     const { loginField, password } = req.body; // Renamed to loginField for clarity
 
     // Find user by either username or email
@@ -38,7 +38,7 @@ const login = asyncHandler(async (req, res) => {
     }).select("+password"); // Include password for verification
 
     if (!user || !(await user.isPasswordCorrect(password))) {
-        throw new ApiError(401, "Invalid username or password");
+        return next(new ApiError(401, "Invalid username or password"));
     }
 
     // Generate access and refresh tokens

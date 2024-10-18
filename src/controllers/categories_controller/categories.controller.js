@@ -10,13 +10,13 @@ import { asyncHandler } from "../../utils/async_handler.js";
 
 
 // Create a new category
-const createCategory = asyncHandler(async (req, res) => {
+const createCategory = asyncHandler(async (req, res, next) => {
     const { name, description, parentCategory } = req.body;
 
     // Check if category name already exists
     const existingCategory = await Categories.findOne({ name });
     if (existingCategory) {
-        throw new ApiError(400, "Category with this name already exists");
+        return next( new ApiError(400, "Category with this name already exists"));
     }
 
     // Create new category
@@ -29,7 +29,7 @@ const createCategory = asyncHandler(async (req, res) => {
     const createdCategory = await Categories.findById(newCategory._id).populate('parentCategory');
 
     if (!createdCategory) {
-        throw new ApiError(500, "Something went wrong while creating the category");
+        return next( new ApiError(500, "Something went wrong while creating the category"));
     }
 
     return res.status(201).json(
@@ -43,12 +43,12 @@ const createCategory = asyncHandler(async (req, res) => {
 
 
 // Delete a category by ID
-const deleteCategory = asyncHandler(async (req, res) => {
+const deleteCategory = asyncHandler(async (req, res, next) => {
     const { id } = req.params; // Use `id` to match the route parameter
 
     // Validate the category ID
     if (!isValidObjectId(id)) {
-        throw new ApiError(400, 'Invalid category ID');
+        return next( new ApiError(400, 'Invalid category ID'));
     }
 
     // Find and delete the category
@@ -56,7 +56,7 @@ const deleteCategory = asyncHandler(async (req, res) => {
 
     // If no category found, throw an error
     if (!deletedCategory) {
-        throw new ApiError(404, 'Category not found');
+        return next( new ApiError(404, 'Category not found'));
     }
 
     // Respond with success message

@@ -57,7 +57,7 @@ const getAllProducts = asyncHandler(async (req, res) => {
 
 
 // Create a new product
-const createProduct = asyncHandler(async (req, res) => {
+const createProduct = asyncHandler(async (req, res, next) => {
     const { name, description, category, price, stock, availability, rating, numReviews } = req.body;
 
     // Check for missing fields
@@ -73,20 +73,20 @@ const createProduct = asyncHandler(async (req, res) => {
 
     for (const [key, message] of Object.entries(requiredFields)) {
         if (!req.body[key]) {
-            throw new ApiError(400, message);
+            return next(new ApiError(400, message));
         }
     }
 
     // Check if image is uploaded
     const imagesLocalPath = req.files?.images?.[0]?.path;
     if (!imagesLocalPath) {
-        throw new ApiError(400, "Image file is required");
+        return next(new ApiError(400, "Image file is required"));
     }
 
     // Upload image to Cloudinary
     const cloudinaryResult = await uploadOnCloudinary(imagesLocalPath);
     if (!cloudinaryResult || !cloudinaryResult.secure_url) {
-        throw new ApiError(400, "Image upload failed");
+        return next(new ApiError(400, "Image upload failed"));
     }
 
     const images = [cloudinaryResult.secure_url];
@@ -107,7 +107,7 @@ const createProduct = asyncHandler(async (req, res) => {
     const createdProduct = await Product.findById(newProduct._id).populate('category');
 
     if (!createdProduct) {
-        throw new ApiError(500, "Something went wrong while creating the product");
+        return next(new ApiError(500, "Something went wrong while creating the product"));
     }
 
     return res.status(201).json(
@@ -127,28 +127,28 @@ const createProduct = asyncHandler(async (req, res) => {
 
 
 // Get a product by ID
-const getProductById = asyncHandler(async (req, res) => {
+const getProductById = asyncHandler(async (req, res, next) => {
     const { productId } = req.params;
 
     if (!isValidObjectId(productId)) {
-        throw new ApiError(400, 'Invalid product ID');
+        return next(new ApiError(400, 'Invalid product ID'));
     }
 
     const product = await Product.findById(productId).populate('Categories').populate('reviews');
 
     if (!product) {
-        throw new ApiError(404, 'Product not found');
+        return next(new ApiError(404, 'Product not found'));
     }
 
     res.status(200).json(new ApiResponse(true, 'Product retrieved successfully', product));
 });
 
 // Update a product by ID
-const updateProduct = asyncHandler(async (req, res) => {
+const updateProduct = asyncHandler(async (req, res, next) => {
     const { productId } = req.params;
 
     if (!isValidObjectId(productId)) {
-        throw new ApiError(400, 'Invalid product ID');
+        return next(new ApiError(400, 'Invalid product ID'));
     }
 
     const updates = req.body;
@@ -159,7 +159,7 @@ const updateProduct = asyncHandler(async (req, res) => {
     const updatedProduct = await Product.findByIdAndUpdate(productId, updates, { new: true });
 
     if (!updatedProduct) {
-        throw new ApiError(404, 'Product not found');
+        return next(new ApiError(404, 'Product not found'));
     }
 
     res.status(200).json(new ApiResponse(true, 'Product updated successfully', updatedProduct));
@@ -170,36 +170,21 @@ const updateProduct = asyncHandler(async (req, res) => {
 
 
 
-// Delete a product by ID
-// const deleteProduct = asyncHandler(async (req, res) => {
-//     const { productId } = req.params;
-
-//     if (!isValidObjectId(productId)) {
-//         throw new ApiError(400, 'Invalid product ID');
-//     }
-
-//     const deletedProduct = await Product.findByIdAndDelete(productId);
-
-//     if (!deletedProduct) {
-//         throw new ApiError(404, 'Product not found');
-//     }
-
-//     res.status(200).json(new ApiResponse(true, 'Product deleted successfully'));
-// });
 
 
 
-const deleteProduct = asyncHandler(async (req, res) => {
+
+const deleteProduct = asyncHandler(async (req, res, next) => {
     const { id } = req.params;  // Use `id` instead of `productId`
 
     if (!isValidObjectId(id)) {
-        throw new ApiError(400, 'Invalid product ID');
+        return next(new ApiError(400, 'Invalid product ID'));
     }
 
     const deletedProduct = await Product.findByIdAndDelete(id);
 
     if (!deletedProduct) {
-        throw new ApiError(404, 'Product not found');
+        return next(new ApiError(404, 'Product not found'));
     }
 
     res.status(200).json(new ApiResponse(true, 'Product deleted successfully'));
@@ -216,13 +201,13 @@ const toggleAvailability = asyncHandler(async (req, res) => {
     const { productId } = req.params;
 
     if (!isValidObjectId(productId)) {
-        throw new ApiError(400, 'Invalid product ID');
+        return next(new ApiError(400, 'Invalid product ID'));
     }
 
     const product = await Product.findById(productId);
 
     if (!product) {
-        throw new ApiError(404, 'Product not found');
+        return next(new ApiError(404, 'Product not found'));
     }
 
     product.availability = !product.availability;
