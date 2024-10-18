@@ -4,7 +4,6 @@ import { ApiError } from "../../utils/api_error.js";
 // Authentication middleware
 const authenticate = async (req, res, next) => {
     const token = req.headers["authorization"]?.split(" ")[1]; // Bearer token format
-    console.log(token)
 
     if (!token) {
         return next(new ApiError(401, "Access token is missing"));
@@ -15,7 +14,7 @@ const authenticate = async (req, res, next) => {
         req.user = decoded; // Store user info in request for later use
         next();
     } catch (error) {
-        throw new ApiError(401, "Invalid or expired token");
+        return next( new ApiError(401, "Invalid or expired token"));
     }
 };
 
